@@ -22,10 +22,19 @@ def unzip_divvy(zip_dir=ZIP_DIR, input_dir=INPUT_DIR):
         with zipfile.ZipFile(os.path.join(zip_dir, f),"r") as zip_ref:
             zip_ref.extractall(input_dir)
 
+def load_and_standardize_divvy_dataset(filepath):
+    colnames = ['trip_id', 'start_time', 'end_time', 'bikeid', 'tripduration',
+                'from_station_id', 'from_station_name', 'to_station_id',
+                'to_station_name', 'usertype', 'gender', 'birthyear']
+    df = pd.read_csv(filepath)
+    # Divvy_Trips_2018_Q1 has different column names (but the same data)
+    if 'Divvy_Trips_2018_Q1' in filepath:
+        df.columns = colnames
+    return df
 
 def aggregate_trip_data(input_dir=INPUT_DIR):
     files = [os.path.join(input_dir, f) for f in os.listdir(input_dir) if 'Trips' in f]
-    df = pd.concat([pd.read_csv(f) for f in files])
+    df = pd.concat([load_and_standardize_divvy_dataset(f) for f in files])
     return df
 
 
