@@ -34,7 +34,7 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None, scoring=None
     return plt
 
 
-def map_stations(df, indicator: str):
+def map_stations(df, indicator=None):
     """
     Creates Folium map of chosen indicator with circle size corresponding to indicator value.
     :param df: pd.DataFrame with  Required columns: ['latitude', 'longitude', 'color', {indicator}]
@@ -42,23 +42,28 @@ def map_stations(df, indicator: str):
     :return:
     """
 
-    REQUIRED_COLS = ['latitude', 'longitude', 'color', indicator]
+    REQUIRED_COLS = ['latitude', 'longitude', 'color']
     assert(all([col in df.columns for col in REQUIRED_COLS])), f'df is missing one or more of {REQUIRED_COLS}'
 
     m = folium.Map(location=[41.9, -87.6], zoom_start=11)
     for i in df.index:
-        folium.Circle((df['latitude'][i], df['longitude'][i]), radius=str(df[indicator][i] * 20),
+        if indicator:
+            size = str(df[indicator][i] * 20)
+        else:
+            size = 1
+        folium.Circle((df['latitude'][i], df['longitude'][i]), radius=size,
                       color=df['color'][i]).add_to(m)
 
     # Folium doesn't have good legend support, HMTL adapted from
     # https://medium.com/@bobhaffner/creating-a-legend-for-a-folium-map-c1e0ffc34373
     legend_html = '''
                     <div style="position: fixed; 
-                                bottom: 500px; left: 500px; width: 100px; height: 90px; 
+                                bottom: 50px; left: 500px; width: 100px; height: 120px; 
                                 border:2px solid grey; z-index:9999; font-size:14px;
                                 ">&nbsp; Year Built <br>
-                                  &nbsp; 2015 &nbsp; <i class="fa fa-map-marker fa-2x" style="color:red"></i><br>
-                                  &nbsp; <2015 &nbsp; <i class="fa fa-map-marker fa-2x" style="color:blue"></i>
+                                  &nbsp; 2013 &nbsp; <i class="fa fa-map-marker fa-2x" style="color:black"></i><br>
+                                  &nbsp; 2015 &nbsp; <i class="fa fa-map-marker fa-2x" style="color:blue"></i><br>
+                                  &nbsp; 2016 &nbsp; <i class="fa fa-map-marker fa-2x" style="color:red"></i>
                     </div>
                     '''
     m.get_root().html.add_child(folium.Element(legend_html))
