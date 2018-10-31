@@ -1,8 +1,17 @@
 # chicago_bicycle_share
-Using Chicago Divvy Bike Share Data for data visualization and Machine Learning feature importance work, including permutation importance, partial dependence plots, and SHAP values
+Using Chicago Divvy Bike Share Data for data visualization and Machine Learning practice, and build a predictive model 
 
-See `2018_09_24_initial_data_exploration_and_models.html` (`.ipynb` version of the file is in `/notebooks`)
+## Feature importance practice
+First, using pre-downloaded kaggle data, played around with some feature importance tools, 
+including permutation importance, partial dependence plots, and SHAP values
 
-Data from https://www.kaggle.com/yingwurenjian/chicago-divvy-bicycle-sharing-data/
-Data is ~2GB and not saved in Git, but can be downloaded using the Kaggle api:
-`kaggle datasets download -d yingwurenjian/chicago-divvy-bicycle-sharing-data`
+See `/notebooks/2018_09_24_initial_data_exploration_and_models.ipynb`
+- To download data, `kaggle datasets download -d yingwurenjian/chicago-divvy-bicycle-sharing-data`
+
+## Prediction of station usage
+Second, I downloaded records from 15 million Divvy rides from the website (https://www.divvybikes.com/system-data) 
+built a k-nearest-neighbors algorithm to predict usage of new stations. See
+`notebooks/2018_10_27_divvy_predict_station_usage.ipynb` for model and plots. 
+- Future directions: use census data as non-spatial model components, and use Google Maps api to get distance and 
+travel time matrix to get real-world spatial information on the stations (beyond just lat/long)
+
