@@ -1,6 +1,10 @@
 # chicago_bicycle_share
 Using Chicago Divvy Bike Share Data for data visualization and Machine Learning practice, and build a predictive model 
 
+## D3 Visualization 
+http://bl.ocks.org/zwrankin/26944952b0b6bcae78107abedec5498f
+Interactive visualization of rides between stations using D3 and Leaflet. Check it out!
+
 ## Feature importance practice
 First, using pre-downloaded kaggle data, played around with some feature importance tools, 
 including permutation importance, partial dependence plots, and SHAP values
