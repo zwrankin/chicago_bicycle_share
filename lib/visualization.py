@@ -34,11 +34,13 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None, scoring=None
     return plt
 
 
-def map_stations(df, indicator=None):
+def map_stations(df, indicator=None, auto_scale=True, legend=False):
     """
     Creates Folium map of chosen indicator with circle size corresponding to indicator value.
     :param df: pd.DataFrame with  Required columns: ['latitude', 'longitude', 'color', {indicator}]
     :param indicator: column name of value to plot
+    :param auto_scale: use linear scaling of indicator for marker size
+    :param legend: use hard-coded html legend
     :return:
     """
 
@@ -46,12 +48,14 @@ def map_stations(df, indicator=None):
     assert(all([col in df.columns for col in REQUIRED_COLS])), f'df is missing one or more of {REQUIRED_COLS}'
 
     m = folium.Map(location=[41.9, -87.6], zoom_start=11)
+    if indicator:
+        sizes = df[indicator]
+        if auto_scale:
+            sizes = np.interp(sizes, (sizes.min(), sizes.max()), (0, 2000))
+    else:
+        sizes = [1] * len(df)
     for i in df.index:
-        if indicator:
-            size = str(df[indicator][i] * 20)
-        else:
-            size = 1
-        folium.Circle((df['latitude'][i], df['longitude'][i]), radius=size,
+        folium.Circle((df['latitude'][i], df['longitude'][i]), radius=sizes[i],
                       color=df['color'][i]).add_to(m)
 
     # Folium doesn't have good legend support, HMTL adapted from
@@ -66,5 +70,6 @@ def map_stations(df, indicator=None):
                                   &nbsp; 2016 &nbsp; <i class="fa fa-map-marker fa-2x" style="color:red"></i>
                     </div>
                     '''
-    m.get_root().html.add_child(folium.Element(legend_html))
+    if legend:
+        m.get_root().html.add_child(folium.Element(legend_html))
     return m
