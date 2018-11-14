@@ -1,8 +1,10 @@
 import requests
 import os
 import shutil
+import numpy as np
 import pandas as pd
 import zipfile
+from sodapy import Socrata
 
 ZIP_DIR = '../raw/divvy/compressed'
 INPUT_DIR = '../raw/divvy'
@@ -62,6 +64,7 @@ def aggregate_trip_data(input_dir=INPUT_DIR, save=True):
     files = [os.path.join(input_dir, f) for f in os.listdir(input_dir) if 'Trips' in f]
     df = pd.concat([load_and_standardize_divvy_dataset(f) for f in files])
     df['start_datetime'] = pd.to_datetime(df.start_time)
+    df['end_datetime'] = pd.to_datetime(df.end_time)
     if save:
         df.to_hdf(os.path.join(input_dir, 'trips.hdf'), key='trips')
     else:
@@ -79,6 +82,44 @@ def load_station_data(input_dir=INPUT_DIR):
     df['online_date'] = df.online_datetime.map(lambda x: x.strftime('%Y-%m-%d'))
     df['online_month'] = df.online_datetime.map(lambda x: x.strftime('%Y-%m'))
     df['online_year'] = df.online_datetime.map(lambda x: int(x.strftime('%Y')))
+
+    # Calculate distance to nearest L station (for now, not line-specific)
+    df_cta = query_cta_stations()
+    df['distance_to_closest_L_station'] = df.apply(
+        lambda x: min(eucl_d(x.latitude, df_cta.latitude, x.longitude, df_cta.longitude)), axis=1)
+    return df
+
+
+def eucl_d(lat1, lat2, long1, long2):
+    """Euclidian distance between two points"""
+    return np.sqrt((lat2-lat1)**2 + (long2-long1)**2)
+
+
+def query_cta_stations():
+    """
+    Loads some data from Chicago L (metro) stations using Socrata Open API (SODA)
+    Data and API documentation available at
+    https://data.cityofchicago.org/Transportation/CTA-System-Information-List-of-L-Stops/8pix-ypme
+    """
+    # Unauthenticated client only works with public data sets. Note 'None'
+    # in place of application token, and no username or password:
+    client = Socrata("data.cityofchicago.org", None)
+
+    # Example authenticated client (needed for non-public datasets):
+    # client = Socrata(data.cityofchicago.org,
+    #                  MyAppToken,
+    #                  userame="user@example.com",
+    #                  password="AFakePassword")
+
+    # First 2000 results, returned as JSON from API / converted to Python list of
+    # dictionaries by sodapy.
+    results = client.get("8mj8-j3c4", limit=2000)
+
+    # Convert to pandas DataFrame
+    df = pd.DataFrame.from_records(results)
+    df['latitude'] = df.location.map(lambda x: x['coordinates'][1])
+    df['longitude'] = df.location.map(lambda x: x['coordinates'][0])
+
     return df
 
 
