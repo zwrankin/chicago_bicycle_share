@@ -15,3 +15,18 @@ def report_cv_scores(results, n_top=3):
             print("Parameters: {0}".format(results['params'][candidate]))
             print("")
 
+
+def df_to_geojson(df, identifier, properties, lat='latitude', lon='longitude'):
+    """Adapted from https://geoffboeing.com/2015/10/exporting-python-data-geojson/"""
+    geojson = {'type':'FeatureCollection', 'features':[]}
+    for _, row in df.iterrows():
+        feature = {'type':'Feature',
+                   'id': row[identifier],
+                   'properties':{},
+                   'geometry':{'type':'Point',
+                               'coordinates':[]}}
+        feature['geometry']['coordinates'] = [row[lon],row[lat]]  # recall that geojson is cartesian (ie, NOT lat-long)
+        for prop in properties:
+            feature['properties'][prop] = row[prop]
+        geojson['features'].append(feature)
+    return geojson
