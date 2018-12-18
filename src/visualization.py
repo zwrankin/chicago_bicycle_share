@@ -51,7 +51,7 @@ def map_stations(df, indicator=None, auto_scale=True, legend=False):
     if indicator:
         sizes = df[indicator]
         if auto_scale:
-            sizes = np.interp(sizes, (sizes.min(), sizes.max()), (0, 2000))
+            sizes = np.interp(sizes, (sizes.min(), sizes.max()), (0, 1000))
     else:
         sizes = [1] * len(df)
     for i in df.index:
