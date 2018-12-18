@@ -30,3 +30,8 @@ def df_to_geojson(df, identifier, properties, lat='latitude', lon='longitude'):
             feature['properties'][prop] = row[prop]
         geojson['features'].append(feature)
     return geojson
+
+
+def euclidian_distance(lat1, lat2, long1, long2):
+    """Euclidian distance between two points"""
+    return np.sqrt((lat2-lat1)**2 + (long2-long1)**2)
