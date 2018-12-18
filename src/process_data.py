@@ -9,13 +9,13 @@ from .utils import euclidian_distance, df_to_geojson
 DATA_DIR = '../data/processed'
 
 
-def process_trip_data(input_dir=INPUT_DIR):
+def process_trip_data(input_dir=INPUT_DIR, data_dir=DATA_DIR):
     """Combine all trip csv files into one hdf"""
     files = [os.path.join(input_dir, f) for f in os.listdir(input_dir) if 'Trips' in f]
     df = pd.concat([load_and_standardize_divvy_dataset(f) for f in files])
     df['start_datetime'] = pd.to_datetime(df.start_time)
     df['end_datetime'] = pd.to_datetime(df.end_time)
-    df.to_hdf(os.path.join(input_dir, 'trips.hdf'), key='trips')
+    df.to_hdf(os.path.join(data_dir, 'trips.hdf'), key='trips')
 
 
 def process_station_metadata(input_dir=INPUT_DIR, data_dir=DATA_DIR):
